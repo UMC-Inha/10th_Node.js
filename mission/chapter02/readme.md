@@ -89,6 +89,35 @@ WHERE user_id = (유저 아이디);
 
 
 ## 시니어 미션
+### 미션 1(내가 진행중, 진행 완료한 미션 모아서 보는 쿼리(페이징 포함))에서 정렬 기준을 1순위는 포인트로 2순위는 최신순으로 하여 Cursor기반 페이지네이션을 구현해보세요
+    - 설명
+        
+        ```sql
+        SELECT m.mission_id,
+        	m.title,
+        	s.store_name,
+        	m.reward_point,
+        	m.target_amount,
+        	um.status,
+        	um.received_at
+        FROM user_mission um
+        JOIN mission m on um.mission_id = m.mission_id
+        JOIN store s ON m.store_id = s.store_id
+        WHERE um.user_id = userId
+        AND um.status = 'RECEIVED'
+        AND ( 
+        	m.reward_point < :lastRewardPoint 
+        OR ( m.reward_point = :lastRewardPoint AND um.received_at < :lastReceivedAt ) 
+        OR ( m.reward_point = :lastRewardPoint AND um.received_at = :lastReceivedAt AND um.usermission_id < :lastUserMissionId
+        )
+        ORDER BY 
+        	m.reward_point DESC,
+        	um.received_at DESC
+        LIMIT 10;
+        ```
+        
+
+- [x]  SQL Injection에 대해 조
 ###  SQL Injection에 대해 조사하고 어떠할 때 일어나고 어떻게 막을 수 있는 지를 적어주세요
     - 설명
         - **SQL 인젝션 (SQLi) 이란?**
