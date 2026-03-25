@@ -1,6 +1,91 @@
+### 실습
+1. 진행 중, 진행 완료한 미션
 
+```sql
+SELECT 
+	m.mission_id,
+	m.title,
+	s.store_name,
+	m.reward_point,
+	m.target_amount,
+	um.status,
+	um.received_at
+FROM user_mission um
+JOIN mission m on um.mission_id = m.mission_id
+JOIN store s ON m.store_id = s.store_id
+WHERE um.user_id = :(유저 아이디)
+AND um.status = 'RECEIVED' #진행 완료 미션 : RECEIVED -> COMPLETED로 변경
+ORDER BY um.received_at DESC
+LIMIT 10 OFFSET ((미션 개수)-1)*10;
+```
 
+2. 리뷰 작성 쿼리
 
+```sql
+INSERT INTO review (
+	user_id,
+	store_id,
+	rating,
+	content,
+	created_at
+)
+VALUES (
+	:(유저 아이디)
+	:(가게 아이디)
+	:rating,
+	:content,
+	NOW()
+);
+```
+
+3. 홈 화면 쿼리
+
+```sql
+#완료한 미션 n/10
+SELECT 
+    COUNT(*) % 10 AS current_count
+FROM user_mission
+WHERE user_id = :userId
+  AND status = 'COMPLETED';
+  
+
+#포인트 잔액
+SELECT point
+FROM user
+WHERE user_id = (유저 아이디);
+
+#선택한 지역에서 할 수 있는 미션
+SELECT
+	m.mission_id,
+	m.title,
+	m.description,
+	m.reward_point,
+	m.target_amount,
+	s.store_name,
+	s.district
+FROM mission m
+JOIN store s ON m.store_id = s.store_id
+LEFT JOIN user_mission um
+	ON um.mission_id = m.mission_id
+	AND um.user_id = (유저 아이디)
+WHERE s.district = (지역)
+AND (um.status = IS NULL OR um.status !=)
+ORDER BY m.created_at DESC
+LIMIT 10 OFFSET (미션 개수 -1)*10;
+```
+
+4. 마이페이지 쿼리
+
+```sql
+SELECT
+	name,
+	email,
+	phone,
+	phone_verified,
+	point
+FROM user
+WHERE user_id = (유저 아이디);
+```
 
 
 ## 시니어 미션
