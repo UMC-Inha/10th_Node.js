@@ -1,3 +1,6 @@
+<img width="1513" height="513" alt="Image" src="https://github.com/user-attachments/assets/ad83e8f5-bfad-442b-9842-fe00d177836a" />
+
+
 # 시니어 미션
 # API 디자인 모범사례
 
