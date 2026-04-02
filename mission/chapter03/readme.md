@@ -1,4 +1,4 @@
-<img width="1513" height="513" alt="Image" src="https://github.com/user-attachments/assets/ad83e8f5-bfad-442b-9842-fe00d177836a" />
+<img width="1407" height="493" alt="Image" src="https://github.com/user-attachments/assets/9031a05a-3551-4af3-9b01-65130f3a55bd" />
 
 
 # 시니어 미션
