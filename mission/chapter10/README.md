@@ -35,11 +35,11 @@ main push
 - [x] 배포용 build/start 스크립트 구성
 - [x] GitHub Actions build/deploy job 작성
 - [x] 로컬 `npm run build` 성공
-- [ ] EC2 인스턴스와 탄력적 IP 준비
-- [ ] GitHub Actions Secrets 등록
-- [ ] `main` 병합 후 Actions 성공
-- [ ] EC2 systemd 서비스 `active` 확인
-- [ ] 외부에서 API 응답 확인
+- [x] EC2 인스턴스와 탄력적 IP 준비
+- [x] GitHub Actions Secrets 등록
+- [x] `main` 병합 후 Actions 성공
+- [x] EC2 systemd 서비스 `active` 확인
+- [x] Nginx와 HTTPS 도메인에서 API 응답 확인
 
 ### 2-2. 배포 환경에서 Google OAuth 수정
 
@@ -54,15 +54,15 @@ callbackURL:
 수정 내용:
 
 1. 콜백 주소를 `PASSPORT_GOOGLE_CALLBACK_URL` 환경변수로 분리했다.
-2. GitHub Secret의 배포용 `.env`에는 EC2 콜백 주소를 넣는다.
+2. GitHub Secret의 배포용 `.env`에는 HTTPS 도메인 콜백 주소를 넣는다.
 3. Google Cloud Console의 승인된 리디렉션 URI에도 같은 주소를 등록한다.
 
 진행 상태:
 
 - [x] OAuth 콜백 URL 환경변수화
-- [ ] Google Cloud Console에 EC2 콜백 URI 등록
-- [ ] EC2 주소에서 Google 로그인 성공 확인
-- [ ] 발급된 Access Token으로 `/mypage` 호출 확인
+- [x] Google Cloud Console에 HTTPS 콜백 URI 등록
+- [x] 배포 도메인에서 Google 로그인 성공 확인
+- [x] 발급된 Access Token으로 `/mypage` 호출 확인
 
 ## 3. 파이프라인 분석
 
@@ -104,7 +104,25 @@ GitHub-hosted runner에서 의존성 설치와 TypeScript 컴파일을 수행하
 
 - **이슈:** 로그인 성공 후 EC2가 아닌 localhost 콜백으로 이동한다.
 - **문제:** 콜백 URL이 코드에 하드코딩되어 있고 Google Console에도 로컬 URI만 등록되어 있다.
-- **해결:** 콜백을 환경변수로 분리하고 코드와 Google Console에 동일한 배포 URI를 설정한다.
+- **해결:** 콜백을 환경변수로 분리하고 DuckDNS, Nginx, Certbot으로 HTTPS를 구성한 뒤 Google Console에 동일한 배포 URI를 설정했다.
+
+### GitHub Actions에서 환경변수를 읽지 못함
+
+- **이슈:** Prisma generate 단계에서 `DATABASE_URL`을 찾을 수 없었다.
+- **문제:** 실습 저장소의 Repository secrets가 비어 있었다.
+- **해결:** 배포에 필요한 5개 Repository secrets를 올바른 저장소에 등록했다.
+
+### MySQL 인증 오류가 plugin 오류로 표시됨
+
+- **이슈:** Prisma가 `Unknown authentication plugin sha256_password`를 출력했다.
+- **문제:** 실제 원인은 배포 Secret과 MySQL 사용자의 비밀번호 불일치였다.
+- **해결:** 전용 사용자 비밀번호를 재설정하고 `DATABASE_URL`, `DB_PASSWORD`를 같은 값으로 갱신했다.
+
+### 작은 EC2에서 migration 중 연결 실패
+
+- **이슈:** MySQL이 실행 중인데도 Prisma가 `P1001`을 출력했다.
+- **문제:** 약 1GiB 메모리에서 가용 메모리가 100MiB 미만이었고 swap이 없었다.
+- **해결:** 기존 EBS에 1GiB swap을 추가한 후 migration과 전체 배포가 성공했다.
 
 ## 6. 시니어 미션 계획
 
