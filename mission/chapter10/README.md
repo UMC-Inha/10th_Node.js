@@ -19,6 +19,7 @@ main push
   → TypeScript build
   → artifact 생성
   → SSH/rsync로 EC2 전송
+  → Prisma migration 적용
   → systemd restart
   → 서비스 상태와 HTTP 응답 확인
 ```
